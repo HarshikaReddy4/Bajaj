@@ -1,4 +1,3 @@
-!pip install fastapi uvicorn python-multipart pillow pytesseract
 from fastapi import FastAPI, File, UploadFile
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
