@@ -1,5 +1,5 @@
 from fastapi import FastAPI, File, UploadFile
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, HTMLResponse
 from pydantic import BaseModel
 from typing import List
 from PIL import Image
@@ -32,12 +32,32 @@ def parse_lab_report(text: str):
 
     return results
 
+@app.get("/")
+def root():
+    return {"message": "FastAPI OCR Lab Test API is running"}
+
+@app.get("/upload", response_class=HTMLResponse)
+async def upload_form():
+    return """
+    <html>
+        <head>
+            <title>Upload Lab Report</title>
+        </head>
+        <body>
+            <h2>Upload Lab Report Image</h2>
+            <form action="/get-lab-tests" enctype="multipart/form-data" method="post">
+                <input name="file" type="file" accept="image/*">
+                <input type="submit" value="Upload">
+            </form>
+        </body>
+    </html>
+    """
+
 @app.post("/get-lab-tests")
 async def get_lab_tests(file: UploadFile = File(...)):
     try:
         image_bytes = await file.read()
         image = Image.open(io.BytesIO(image_bytes))
-
         text = pytesseract.image_to_string(image)
         lab_data = parse_lab_report(text)
 
@@ -51,8 +71,3 @@ async def get_lab_tests(file: UploadFile = File(...)):
             "is_success": False,
             "error": str(e)
         })
-
-# ✅ Add this route to fix the 404 at /
-@app.get("/")
-def root():
-    return {"message": "FastAPI OCR Lab Test API is running"}
