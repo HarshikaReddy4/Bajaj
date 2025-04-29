@@ -51,3 +51,8 @@ async def get_lab_tests(file: UploadFile = File(...)):
             "is_success": False,
             "error": str(e)
         })
+
+# ✅ Add this route to fix the 404 at /
+@app.get("/")
+def root():
+    return {"message": "FastAPI OCR Lab Test API is running"}
